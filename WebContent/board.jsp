@@ -1,6 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=EUC-KR"
     pageEncoding="EUC-KR"%>
 <%@ page import  ="java.io.PrintWriter" %>
+<%@ page import = "bbs.*" %>
+<%@ page import = "java.util.*" %>
+<%@ page import="java.text.*"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -8,12 +11,22 @@
 <meta name="viewport" content="width=device-width", initial-scale ="1">
 <link rel = "stylesheet" href="css/bootstrap.css">
 <title>JSP 게시판 웹 사이트</title>
+<style type="text/css">
+	a, a:hover {
+	color: #000000;
+	text-decoration: none;
+</style>
 </head>
 <body>
 	<%
 		String userID = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		if(session.getAttribute("userID")!= null){
 			userID = (String) session.getAttribute("userID");
+		}
+		int pageNumber = 1;
+		if(request.getParameter("pageNumber")!=null){
+			pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
 		}
 	
 	%>
@@ -79,14 +92,38 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>1</td>
-						<td>안녕하세요.</td>
-						<td>홍길동</td>
-						<td>2017-05-04</td>
-					</tr>				
+				<%
+					BbsDAO bbsDAO = new BbsDAO();
+					ArrayList<Bbs> list = bbsDAO.getList(pageNumber);
+					if(list.size()!=0){
+					for(int i = 0; i<list.size(); i++){
+						
+				%>
+				<tr>
+					<td><%=list.get(i).getNumb() %></td>
+					<td><a href ="view.jsp?numb=<%=list.get(i).getNumb() %>"><%=list.get(i).getTitle() %></a></td>
+					<td><%=list.get(i).getUserid() %></td>
+					<td><%=sdf.format(list.get(i).getDatetime())%></td>
+				</tr>
+				<%		
+					}
+				} else {
+				%>
+				<td colspan="4"> 등록된 게시글이 없습니다.</td>
+				<%} %>
 				</tbody>
 			</table>
+			<%
+				if(pageNumber!=1){
+			%>
+				<a href="board.jsp?pageNumber=<%=pageNumber-1 %>" class="btn btn-success btn-arrow-left">이전</a>
+			<%
+				} if(bbsDAO.nextPage(pageNumber+1)) {
+			%> 
+				<a href="board.jsp?pageNumber=<%=pageNumber+1 %>" class ="btn btn-success btn-arrow-left">다음</a>
+			<%
+				}
+			%>
 			<a href="write.jsp" class="btn btn-primary pull-right">글쓰기</a>
 		</div>
 	</div>

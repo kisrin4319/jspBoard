@@ -7,7 +7,7 @@ public class Bbs {
 	private int numb;
 	private String title;
 	private String userid;
-	private String datetime;
+	private Timestamp datetime;
 	private String content;
 	private int available;
 	public int getNumb() {
@@ -28,10 +28,10 @@ public class Bbs {
 	public void setUserid(String userid) {
 		this.userid = userid;
 	}
-	public String getDatetime() {
+	public Timestamp getDatetime() {
 		return datetime;
 	}
-	public void setDatetime(String datetime) {
+	public void setDatetime(Timestamp datetime) {
 		this.datetime = datetime;
 	}
 	public String getContent() {

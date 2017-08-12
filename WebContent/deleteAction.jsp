@@ -1,11 +1,8 @@
 <%@page import="java.sql.Timestamp"%>
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
-	pageEncoding="EUC-KR"%>
-<%@ page import="bbs.BbsDAO"%>
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ page import="bbs.*"%>
 <%@ page import="java.io.PrintWriter"%>
 <% request.setCharacterEncoding("EUC-KR"); %>
-<jsp:useBean id="bbs" class="bbs.Bbs" scope="page" />
-<jsp:setProperty property="*" name="bbs" />
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,24 +24,37 @@
 		script.println("location.href = 'login.jsp'");
 		script.println("</script>");
 	}
+
+	int numb= 0;
+	if(request.getParameter("numb")!=null){
+		numb = Integer.parseInt(request.getParameter("numb"));
+	}
+	if(numb == 0)
+	{
+		PrintWriter script = response.getWriter();
+		script.println("<script>");
+		script.println("alert('유효하지 않은 글입니다.')");
+		script.println("location.href = 'board.jsp'");
+		script.println("</script>");
+	}
+	Bbs bbs = new BbsDAO().getBbs(numb);
+	if(!userID.equals(bbs.getUserid())){
+		PrintWriter script = response.getWriter();
+		script.println("<script>");
+		script.println("alert('권한이 없습니다.')");
+		script.println("location.href = 'board.jsp'");
+		script.println("</script>");
+	}
+		
 	else{
-		if(bbs.getTitle()==null || bbs.getContent()==null){
-			
-			PrintWriter script = response.getWriter();
-			script.println("<script>");
-			script.println("alert('입력이 안된 사항이 있습니다.')");
-			script.println("history.back()");
-			script.println("</script>");		
-		} else {
-			bbs.setDatetime(new Timestamp(System.currentTimeMillis()));
-			bbs.setUserid(userID);
+
 			BbsDAO bbsDAO = new BbsDAO();
-			int result = bbsDAO.write(bbs); 
+			int result = bbsDAO.delete(numb); 
 		
 			if(result == -1){
 				PrintWriter script = response.getWriter();
 				script.println("<script>");
-				script.println("alert('글쓰기에 실패했습니다.')");
+				script.println("alert('글 수정에 실패했습니다.')");
 				script.println("history.back()");
 				script.println("</script>");
 			}
@@ -55,7 +65,6 @@
 				script.println("</script>");
 			}
 		}
-	}
 		%>
 </body>
 </html>
